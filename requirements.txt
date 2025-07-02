@@ -1,0 +1,7 @@
+# requirements.txt para wine_prediction
+numpy
+pandas
+matplotlib
+scipy
+seaborn
+pytest

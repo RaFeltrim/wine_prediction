@@ -1,0 +1,6 @@
+# Ignore arquivos e pastas gerados automaticamente
+__pycache__/
+.pytest_cache/
+venv/
+wine_prediction.log
+req.txt

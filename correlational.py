@@ -1,35 +1,26 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
 from itertools import combinations
-import seaborn as sns # Para um plot mais bonito da matriz de correlação
-from model_tools import load_csv, normalize, create_nonlinear_features
+import seaborn as sns
+from src.model_tools import load_csv, normalize, create_nonlinear_features
 
 # --- Início do seu código modificado ---
-Xy_raw = pd.read_csv('dados/winequality-red.csv', sep=';').values # Carrega os dados do CSV
-y_target = Xy_raw[:, -1].reshape(-1, 1) # Garante que y_target seja (N, 1)
+Xy_raw = pd.read_csv('dados/winequality-red_treino.csv', sep=';').values
+y_target = Xy_raw[:, -1].reshape(-1, 1)
 X_original_features = Xy_raw[:, :-1]
 
-# 1. Criar features não lineares
 X_engineered = create_nonlinear_features(X_original_features)
-
-# 2. Combinar as features engenheiradas com a variável alvo para calcular a correlação
-#    É importante que a correlação seja calculada ANTES da normalização Z-score
-#    se você quiser a correlação nos valores "reais" das features.
-#    Ou, se quiser a correlação das features já normalizadas (o que também é válido),
-#    faça a normalização primeiro e depois calcule a correlação.
-#    Vamos calcular nas features engenheiradas ANTES da normalização Z-score
-#    para entender as relações intrínsecas.
 
 data_for_corr = np.hstack((X_engineered, y_target))
 
-# 3. Calcular a matriz de correlação usando Pandas para facilidade
-#    Pandas lida bem com os rótulos e calcula a correlação de Pearson corretamente.
 num_original_features = X_original_features.shape[1]
 num_engineered_features = X_engineered.shape[1]
 
-# Obter nomes das features do header do CSV
+
 header = [
     "fixed acidity", "volatile acidity", "citric acid", "residual sugar", "chlorides",
     "free sulfur dioxide", "total sulfur dioxide", "density", "pH", "sulphates", "alcohol"
@@ -37,61 +28,33 @@ header = [
 
 feature_names = []
 
-# Features originais
 for name in header:
     feature_names.append(name)
-
-# Features quadráticas (x²)
 for name in header:
     feature_names.append(f'{name}^2')
-
-# Features cúbicas (x³)
 for name in header:
     feature_names.append(f'{name}^3')
-
-# Features logarítmicas (log(x))
 for name in header:
     feature_names.append(f'log({name})')
-
-# Features de interação (xi * xj para i < j)
 for i in range(len(header)):
     for j in range(i+1, len(header)):
         feature_names.append(f'{header[i]} x {header[j]}')
 
-# Verificar se o número de nomes corresponde ao número de features engenheiradas
-print(f"Número de features engenheiradas: {num_engineered_features}")
-print(f"Número de nomes gerados: {len(feature_names)}")
 
-# Ajustar se necessário (fallback para nomes genéricos)
 if len(feature_names) != num_engineered_features:
     feature_names = [f'Feature_{i+1}' for i in range(num_engineered_features)]
-
 final_feature_names = feature_names + ['Target_y']
 
-
 df_for_corr = pd.DataFrame(data_for_corr, columns=final_feature_names)
-corr_matrix = df_for_corr.corr() # Calcula a matriz de correlação de Pearson
-
-print("Correlation matrix shape:", corr_matrix.shape)
-print("Correlation matrix:\n", corr_matrix)
-
-# 4. Plotar a matriz de correlação
+corr_matrix = df_for_corr.corr()
 figsize = (max(18, int(0.25 * len(final_feature_names))), max(15, int(0.25 * len(final_feature_names))))
-plt.figure(figsize=figsize) # Ajusta o tamanho conforme o número de features
+plt.figure(figsize=figsize)
 sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".1f", linewidths=.5)
 plt.title("Matriz de Correlação das Features e Variável Alvo")
 plt.xticks(rotation=45, ha="right")
 plt.yticks(rotation=0)
-plt.tight_layout() # Ajusta o layout para não cortar os rótulos
-# Crie o diretório se não existir
+plt.tight_layout()
 Path("graficos").mkdir(parents=True, exist_ok=True)
 plt.savefig("graficos/correlation_matrix_features_target.png", dpi=300)
 plt.close()
-
-# 5. Normalizar as features engenheiradas para o modelo
-#    (esta parte é para o seu fluxo de modelagem, não para a matriz de correlação acima)
 X_norm, mean_norm, std_norm = normalize(X_engineered)
-# y_target já está separado
-
-print("\n--- Matriz X_norm pronta para o modelo ---")
-print("X_norm shape:", X_norm.shape)
