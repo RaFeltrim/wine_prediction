@@ -174,19 +174,19 @@ cp dados/winequality-red_treino.csv dados/winequality-red.csv    # No macOS/Linu
 
 - Para gerar a matriz de correlação (EDA):
   ```bash
-  python src/correlational.py
+  python -m src.correlational
   ```
   *(A imagem será salva em graficos/)*
 
 - Para treinar o modelo principal, avaliar e salvar suas previsões:
   ```bash
-  python src/wine_prediction.py
+  python -m src.wine_prediction
   ```
   *(Os parâmetros do modelo serão salvos em modelo_winequality_red.npz e as previsões em previsoes/)*
 
 - Opcional: Para executar o pipeline de seleção de variáveis e gerar gráficos e previsões adicionais (para cada R):
   ```bash
-  python src/model_tools.py
+  python -m src.model_tools
   ```
   *(Gráficos em graficos/ e previsões detalhadas em previsoes/Y_pred_BFGS_R{R}.csv e Y_pred_GD_R{R}.csv)*
 

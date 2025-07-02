@@ -14,11 +14,12 @@ Etapas:
 7. Avaliação no conjunto de teste externo e salvamento das previsões.
 """
 
+
 import numpy as np
 import pandas as pd
-from .model_tools import load_csv, create_nonlinear_features, normalize, add_bias, fit_bfgs, kfold_mse
+from src.model_tools import load_csv, create_nonlinear_features, normalize, add_bias, fit_bfgs, kfold_mse
 from pathlib import Path
-from .logger_config import logger
+from src.logger_config import logger
 
 df_treino = pd.read_csv('dados/winequality-red_treino.csv', sep=';')
 X_treino = df_treino.iloc[:, :-1].values
