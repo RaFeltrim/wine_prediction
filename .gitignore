@@ -4,3 +4,8 @@ __pycache__/
 venv/
 wine_prediction.log
 req.txt
+
+# Resultados e artefatos de execução
+modelo_winequality_red.npz
+previsoes/
+graficos/
